@@ -1,0 +1,18 @@
+{
+	"first_user": {
+		"password": "first_pass",
+		"name": "abet"
+	},
+	"second_user": {
+		"password": "second_pass",
+		"name": "betty"
+	},
+	"frankkim": {
+		"password": "newpassword",
+		"name": "yeonsoo_kim"
+	},
+	"kimgs0725": {
+		"password": "newpassword2",
+		"name": "gyeongsoo_kim"
+	}
+}
