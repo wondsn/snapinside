@@ -1,26 +1,26 @@
 {
   "name": "snapinside",
   "version": "1.0.0",
-  "description": "SNAP INSIDE ===========",
+  "description": "SNAP INSIDE",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "test": "nodemon index.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/kimgs0725/snapinside.git"
-  },
-  "author": "",
+  "repository": "git+https://github.com/kimgs0725/snapinside.git",
+  "author": "김경수 <kimgs0725@gmail.com>",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/kimgs0725/snapinside/issues"
   },
   "homepage": "https://github.com/kimgs0725/snapinside#readme",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "ejs": "^3.0.1",
     "express": "^4.17.1",
-    "express-session": "^1.17.0"
+    "express-session": "^1.17.0",
+    "mongoose": "^5.8.1",
+    "yarn": "^1.21.1"
   }
 }

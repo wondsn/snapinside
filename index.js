@@ -1,18 +1,11 @@
-var express = require('express');
-var app = express();
-var bodyParser = require('body-parser');
-var session = require('express-session');
-
-var fs = require('fs');
-
+const express = require('express');
+const app = express();
+const bodyParser = require('body-parser');
+const session = require('express-session');
+const mongoose = require('mongoose');
+const account = require('./model/account');
+const db_url = 'mongodb://localhost/snapinside_db';
 app.set('views', __dirname + '/views');
-// app.set('view engine', 'ejs');
-// app.engine('html', require('ejs').renderFile);
-
-var server = app.listen(3000, () => {
-  console.log("Express server has started on port 3000");
-});
-
 app.use(express.static('public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
@@ -22,4 +15,15 @@ app.use(session({
   saveUninitialized: true
 }));
 
-var router = require('./router/main')(app, fs);
+var db = mongoose.connection;
+db.on('error', console.error);
+db.once('open', () => {
+  console.log("Connected to mongod server");
+});
+mongoose.connect(db_url);
+
+var router = require('./router/main')(app, account);
+
+var server = app.listen(3000, () => {
+  console.log("Express server has started on port 3000");
+});
