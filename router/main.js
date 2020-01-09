@@ -1,9 +1,9 @@
 module.exports = (app, Account) => {
-  // app.get('/', (req, res) => {
-  //   res.render("index.html");
-  // });
+  app.get('/', (req, res) => {
+    res.redirect('login');
+  });
 
-  app.post('/signup', (req, res) => {
+  app.post('/signup', async (req, res) => {
     let usernameRegex = /^[a-z0-9]+$/;
 
     if (!usernameRegex.test(req.body.userid)) {
@@ -20,31 +20,44 @@ module.exports = (app, Account) => {
       });
     }
 
-    Account.findOne({ userid: req.body.userid }, (err, exists) => {
-      if (err) throw err;
+    try {
+      const exists = await Account.findOne({userid: req.body.userid});
       if (exists) {
         return res.status(409).json({
           error: "USERNAME EXISTS",
           code: 3
         });
       }
-
       let account = new Account({
         userid: req.body.userid,
         password: req.body.password,
         nickname: req.body.nickname
       });
-
       account.password = account.generateHash(account.password);
-
-      account.save( err => {
-        if (err) throw err;
-        return res.json({ success: true });
-      });
-    })
+      await account.save();
+      res.redirect('login');
+    } catch (error) {
+      throw error;
+    }
   });
 
-  app.post('/signin', (req, res) => {
+  app.get('/welcome', (req, res) => {
+    if (!req.session.name) {
+      return res.redirect('/login');
+    } else {
+      res.render('welcome', {name: req.session.name});
+    }
+  });
+
+  app.get('/login', (req, res) => {
+    if (!req.session.name) {
+      res.render('login', {message: 'input your id and password'});
+    } else {
+      res.redirect('/welcome');
+    }
+  });
+
+  app.post('/login', async (req, res) => {
     if (typeof req.body.password !== "string") {
       return res.status(401).json({
         error: "LOGIN FAILED",
@@ -52,39 +65,31 @@ module.exports = (app, Account) => {
       });
     }
 
-    Account.findOne( { userid: req.body.userid }, (err, account) => {
-      if (err) throw err;
-
+    try {
+      const account = await Account.findOne({userid: req.body.username});
       if (!account) {
         return res.status(401).json({
           error: "LOGIN FAILED",
           code: 1
         });
       }
-
-      if (!account.validateHash(req.body.password)) {
-        return res.status(401).json({
-          error: "LOGIN FAILED",
-          code: 1
-        });
+      if (account.validateHash(req.body.password)) {
+        req.session._id = account._id;
+        req.session.userid = account.userid;
+        req.session.name = account.nickname;
+        await req.session.save();
+        res.redirect('welcome');
+      } else {
+        res.render('login', {message: "please check your password"});
       }
-
-      var session = req.session;
-      session.loginInfo = {
-        _id: account._id,
-        userid: account.userid,
-        nickname: account.nickname
-      }
-
-      return res.json({
-        success: true
-      });
-    })
+    } catch (error) {
+      throw error;
+    }
   });
 
   app.post('/logout', (req, res) => {
-    sess = req.session;
-    if (sess.userid) {
+    var sess = req.session;
+    if (typeof sess.loginInfo !== "undefined") {
       req.session.destroy(err => {
         if (err) throw err;
       });
@@ -92,30 +97,52 @@ module.exports = (app, Account) => {
     }
   });
 
-  // app.delete('/deleteUser/:username', (req, res) => {
-  //   var result = {};
-  //   var username = req.params.username;
-  //   // 이 부분 다 DB로 대체할 예정. 예제용으로 작성
-  //   fs.readFile(__dirname + "/../data/user.json", 'utf8', (err, data) => {
-  //     var users = JSON.parse(data);
-  //     if (!users[username]) {
-  //       result["success"] = 0;
-  //       result["error"] = "not found";
-  //       res.json(result);
-  //       return;
-  //     }
+  app.get('/getInfo', (req, res) => {
+    if (typeof req.session.loginInfo === "undefined") {
+      return res.status(401).json({ error: 1});
+    }
+    res.json({ info: req.session.loginInfo });
+  });
 
-  //     delete users[username];
-  //     fs.writeFile(__dirname + "/../data/user.json", JSON.stringify(users, null, '\t'), 'utf8', (err, data) => {
-  //       result["success"] = 1;
-  //       res.json(result);
-  //     });
-  //   });
-  // });
+  app.delete('/signout', (req, res) => {
+    var sess = req.session;
+    if (!sess.userid) {
+      return res.status(402).json({
+        error: "NO SESSION",
+        code: 1
+      });
+    }
+
+    Book.remove({ _id: sess.loginInfo._id }, (err, output) => {
+      if (err) {
+        return res.status(500).json({
+          error: "DATABASE ERROR",
+          code: 1
+        });
+      }
+
+      if (!output.result.n) {
+        return res.status(404).json({
+          error: "LOGININFO NOT FOUND",
+          code: 1
+        });
+      }
+
+      res.json({ message: "USER INFO DELETED"});
+    });
+
+    req.session.destroy(err => {
+      if (err) {
+        throw err;
+      } else {
+        res.redirect('/');
+      }
+    })
+  });
 
   app.get('/userlist', (req, res) => {
     Account.find((err, account) => {
       res.json(account)
-    })
-  })
+    });
+  });
 }
