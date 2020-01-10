@@ -7,8 +7,7 @@ const account = require('./model/account');
 const db_url = 'mongodb://localhost/snapinside_db';
 
 app.set('views', __dirname + '/views');
-app.set('view engine', 'ejs');
-app.engine('html', require('ejs').renderFile);
+app.set('view engine', 'pug');
 
 app.use(express.static('public'));
 app.use(bodyParser.json());
