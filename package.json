@@ -22,7 +22,7 @@
     "method-override": "^3.0.0",
     "mongoose": "^5.8.7",
     "pug": "^2.0.4",
-    "yarn": "^1.21.1"
+    "yarn": "^1.22.0"
   },
   "devDependencies": {
     "morgan": "^1.9.1",
