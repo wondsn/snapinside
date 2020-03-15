@@ -3,8 +3,12 @@ module.exports = (app, Account) => {
     res.redirect('login');
   });
 
+  app.get('/signup/edit', (req, res) => {
+    res.render('signup');
+  });
+
   app.post('/signup', async (req, res) => {
-    let usernameRegex = /^[a-z0-9]+$/;
+    const usernameRegex = /^[a-z0-9]+$/;
 
     if (!usernameRegex.test(req.body.userid)) {
       return res.status(400).json({
@@ -28,7 +32,7 @@ module.exports = (app, Account) => {
           code: 3
         });
       }
-      let account = new Account({
+      const account = new Account({
         userid: req.body.userid,
         password: req.body.password,
         nickname: req.body.nickname
@@ -87,33 +91,31 @@ module.exports = (app, Account) => {
     }
   });
 
-  app.post('/logout', (req, res) => {
-    var sess = req.session;
-    if (typeof sess.loginInfo !== "undefined") {
+  app.get('/logout', (req, res) => {
+    if (typeof req.session._id !== "undefined") {
       req.session.destroy(err => {
         if (err) throw err;
       });
-      return res.json({ success: true});
+      return res.redirect('/');
     }
   });
 
   app.get('/getInfo', (req, res) => {
-    if (typeof req.session.loginInfo === "undefined") {
+    if (typeof req.session._id === "undefined") {
       return res.status(401).json({ error: 1});
     }
-    res.json({ info: req.session.loginInfo });
+    res.json({ userid: req.session.userid });
   });
 
   app.delete('/signout', (req, res) => {
-    var sess = req.session;
-    if (!sess.userid) {
+    if (!req.session._id) {
       return res.status(402).json({
         error: "NO SESSION",
         code: 1
       });
     }
 
-    Book.remove({ _id: sess.loginInfo._id }, (err, output) => {
+    Book.remove({ _id: req.session._id }, (err, output) => {
       if (err) {
         return res.status(500).json({
           error: "DATABASE ERROR",
@@ -123,7 +125,7 @@ module.exports = (app, Account) => {
 
       if (!output.result.n) {
         return res.status(404).json({
-          error: "LOGININFO NOT FOUND",
+          error: "USER NOT FOUND",
           code: 1
         });
       }

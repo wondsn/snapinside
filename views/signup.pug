@@ -1,0 +1,14 @@
+doctype html
+html(lang="en" dir="ltr")
+    head
+        meta(charset='utf-8')
+        title=`Sign Up`
+    body
+        form(action="/signup" method="post")
+            input(type="text" name="userid" placeholder="id")
+            br
+            input(type="password" name="password" placeholder="password")
+            br
+            input(type="text" name="nickname" placeholder="nickname")
+            br
+            input(type="submit")

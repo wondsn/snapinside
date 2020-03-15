@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const mongoose = require('mongoose');
 const account = require('./model/account');
-const db_url = 'mongodb://localhost/snapinside_db';
+const db_url = 'mongodb+srv://test_username:z1x2c3a4s5d6@cluster0-rd3uc.mongodb.net/snapinside_db?retryWrites=true&w=majority';
 
 app.set('views', __dirname + '/views');
 app.set('view engine', 'pug');

@@ -2,12 +2,14 @@ doctype html
 html(lang="en" dir="ltr")
     head
         meta(charset='utf-8')
-        title="Login Page"
+        title=`Login Page`
     body
         h1 #{message}
         form(action="/login" method="post")
-            input(type='text' name='username' placeholder='id')
+            input(type="text" name="username" placeholder="id")
             br
-            input(type='password' name='password' placeholder='id')
+            input(type="password" name="password" placeholder="password")
             br
-            input(type='submit')
+            input(type="submit")
+            br
+            a(href="/signup/edit") signup
